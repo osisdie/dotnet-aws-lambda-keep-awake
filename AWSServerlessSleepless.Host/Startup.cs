@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using ServerlessSleepless.Awaker.Common.Logging;
@@ -30,9 +30,8 @@ namespace ServerlessSleepless.Host
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-                .AddJsonOptions(opt =>
+            services.AddControllers()
+                .AddNewtonsoftJson(opt =>
                 {
                     opt.SerializerSettings.ContractResolver = new DefaultContractResolver
                     {
@@ -43,21 +42,17 @@ namespace ServerlessSleepless.Host
             // Add S3 to the ASP.NET Core dependency injection framework.
             services.AddAWSService<Amazon.S3.IAmazonS3>();
 
-            // SQS Configuration
-            //services.AddOptions();
-            //services.Configure<AwakeWorkerOption>(Configuration.GetSection(typeof(SelfAwakeService).FullName));
-
             // Core Self-awake service
             services.AddSingleton<ISelfAwakeService>(new SelfAwakeService(Configuration,
                 typeof(Awaker.AccessS3.SelfAwakeService).Assembly,
                 typeof(Awaker.SQSLoop.SelfAwakeService).Assembly,
                 typeof(Awaker.BurstCPU.SelfAwakeService).Assembly,
                 typeof(Awaker.BurstMEM.SelfAwakeService).Assembly
-            )); 
+            ));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -68,9 +63,13 @@ namespace ServerlessSleepless.Host
                 app.UseHsts();
             }
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute("default", "{controller=Awake}/{action=Index}/{id?}");
+                endpoints.MapControllers();
+                endpoints.MapControllerRoute("default",
+                    "{controller=Awake}/{action=Index}/{id?}");
             });
         }
     }

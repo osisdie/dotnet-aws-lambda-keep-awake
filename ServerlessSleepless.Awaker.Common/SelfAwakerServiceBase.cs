@@ -38,7 +38,7 @@ namespace ServerlessSleepless.Awaker.Common
                 Logger.LogInformation(Serializer.Serialize(new
                 {
                     provider = this.GetType().FullName,
-                    common = CoommonLogInfo,
+                    common = CommonLogInfo,
                     _ts = DateTime.UtcNow
                 }));
             }
@@ -52,13 +52,13 @@ namespace ServerlessSleepless.Awaker.Common
                     provider = this.GetType().FullName,
                     message = ex.Message,
                     exception = ex.ToString(),
-                    common = CoommonLogInfo,
+                    common = CommonLogInfo,
                     _ts = DateTime.UtcNow,
                 }));
             }
         }
 
-        public object CoommonLogInfo
+        public object CommonLogInfo
         {
             get
             {
