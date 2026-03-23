@@ -238,6 +238,4 @@ Ideas for new awakers:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-Copyright (c) 2019-2026, Kevin Wu
+[MIT](LICENSE)
